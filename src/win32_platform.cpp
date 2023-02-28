@@ -224,7 +224,7 @@ Win32LoadAppCode(char *SourceDLLName, char *TempDLLName)
     Result.AppCodeDLL = LoadLibraryA(TempDLLName);
     if(Result.AppCodeDLL)
     {
-        Result.Update = (app_update_func *)
+        Result.Update = (AppUpdateFunc *)
             GetProcAddress(Result.AppCodeDLL, "app_update");
         
         Result.IsValid = (Result.Update != 0);
@@ -391,13 +391,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     QueryPerformanceFrequency(&PerfCountFrequencyResult);
     GlobalPerfCountFrequency = PerfCountFrequencyResult.QuadPart;
     
-    app_input Input[2] = {};
-    app_input *OldInput = &Input[0];
-    app_input *NewInput = &Input[1];
+    AppInput Input[2] = {};
+    AppInput *OldInput = &Input[0];
+    AppInput *NewInput = &Input[1];
     
-    app_memory AppMemory= {};
-    AppMemory.PermanentStorageSize = Megabytes(256);
-    AppMemory.TransientStorageSize = Gigabytes(1);
+    AppMemory app_memory= {};
+    app_memory.permanent_storage_size = Megabytes(256);
+    app_memory.transient_storage_size = Gigabytes(1);
     
     win32_state Win32State = {};
     Win32GetEXEFileName(&Win32State);
@@ -416,13 +416,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     
     win32_app_code Application = Win32LoadAppCode(SourceAppCodeDLLFullPath, TempAppCodeDLLFullPath);
     
-    Win32State.TotalSize = AppMemory.PermanentStorageSize + AppMemory.TransientStorageSize;
+    Win32State.TotalSize = app_memory.permanent_storage_size + app_memory.transient_storage_size;
     Win32State.AppMemoryBlock = VirtualAlloc(0, (size_t)Win32State.TotalSize,
                                              MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
     
-    AppMemory.PermanentStorage = Win32State.AppMemoryBlock;
-    AppMemory.TransientStorage = ((u8 *)AppMemory.PermanentStorage +
-                                  AppMemory.PermanentStorageSize);
+    app_memory.permanent_storage = Win32State.AppMemoryBlock;
+    app_memory.transient_storage = ((u8 *)app_memory.permanent_storage +
+                                    app_memory.permanent_storage_size);
     
     while (GlobalRunning)
     {
@@ -458,31 +458,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         LARGE_INTEGER EndCounter = Win32GetWallClock();
         f32 SPerFrame = Win32GetSecondsElapsed(LastCounter, EndCounter);                    
         LastCounter = EndCounter;
-        NewInput->dtForFrame = SPerFrame;
+        NewInput->dt_for_frame = SPerFrame;
         
         char Title[256] = {};
         snprintf(Title, 256, "RayTracing (%.3f Fps, %.3f ms/f)", 1.0f / SPerFrame, 1000 * SPerFrame);
         SetWindowText(Window, Title);
         
         
-        app_offscreen_buffer Buffer = {};
-        Buffer.Memory = GlobalBackbuffer.Memory;
-        Buffer.Width = GlobalBackbuffer.Width; 
-        Buffer.Height = GlobalBackbuffer.Height;
-        Buffer.Pitch = GlobalBackbuffer.Pitch;
-        Buffer.BytesPerPixel = GlobalBackbuffer.BytesPerPixel;
+        AppOffscreenBuffer buffer = {};
+        buffer.memory = GlobalBackbuffer.Memory;
+        buffer.width = GlobalBackbuffer.Width; 
+        buffer.height = GlobalBackbuffer.Height;
+        buffer.pitch = GlobalBackbuffer.Pitch;
+        buffer.bytes_per_pixel = GlobalBackbuffer.BytesPerPixel;
         
 #if USE_HOT_RELOAD
         if (Application.Update) {
-            Application.Update(&AppMemory, NewInput, &Buffer);
+            Application.Update(&app_memory, NewInput, &buffer);
         }
 #else
-        app_update(&AppMemory, NewInput, &Buffer);
+        app_update(&app_memory, NewInput, &Buffer);
 #endif
         
-        app_input *TmpInput = OldInput;
+        AppInput *TmpInput = OldInput;
         OldInput = NewInput;
         NewInput = TmpInput;
+        
+#if 0        
         //- Wait for next frame 
         LARGE_INTEGER WorkCounter = Win32GetWallClock();
         f32 WorkSecondsElapsed = Win32GetSecondsElapsed(LastCounter, WorkCounter);
@@ -519,6 +521,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             // TODO(jack): MISSED FRAME RATE!
             // TODO(jack): Logging
         }
+#endif
+        
     }
     printf("Normal Return\n");
     

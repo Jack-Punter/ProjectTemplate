@@ -10,7 +10,7 @@ struct win32_app_code
     
     // IMPORTANT(jack): Either of the callbacks can be 0!  You must
     // check before calling.
-    app_update_func *Update;
+    AppUpdateFunc *Update;
     
     b32 IsValid;
 };

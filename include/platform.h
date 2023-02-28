@@ -26,39 +26,41 @@ typedef double f64;
 
 
 // TODO(jack): In the future, rendering _specifically_ will become a three-tiered abstraction!!!
-struct app_offscreen_buffer
+struct AppOffscreenBuffer
 {
     // NOTE(jack): Pixels are alwasy 32-bits wide, Memory Order BB GG RR XX
-    void *Memory;
-    int Width;
-    int Height;
-    int Pitch;
-    int BytesPerPixel;
+    void *memory;
+    int width;
+    int height;
+    int pitch;
+    int bytes_per_pixel;
 };
 
 // TODO(jack): In the future, rendering _specifically_ will become a three-tiered abstraction!!!
-struct app_input
+struct AppInput
 {
-    f32 dtForFrame;
+    f32 dt_for_frame;
 };
 
-struct app_memory
+struct AppMemory
 {
-    b32 IsInitialized;
+    b32 is_initialised;
     
-    u64 PermanentStorageSize;
-    void *PermanentStorage; // NOTE(jack): REQUIRED to be cleared to zero at startup
+    u64 permanent_storage_size;
+    void *permanent_storage; // NOTE(jack): REQUIRED to be cleared to zero at startup
     
-    u64 TransientStorageSize;
-    void *TransientStorage; // NOTE(jack): REQUIRED to be cleared to zero at startup
+    u64 transient_storage_size;;
+    void *transient_storage; // NOTE(jack): REQUIRED to be cleared to zero at startup
     
     // NOTE(jack): Platfrom provided functions can be put here
     
 };
 
-typedef void app_update_func(app_memory *Memory, app_input *Input, app_offscreen_buffer *Buffer);
+typedef void AppUpdateFunc(AppMemory *, AppInput *, AppOffscreenBuffer *);
 
+#ifndef USE_HOT_RELOAD
 extern "C" void
-app_update(app_memory *Memory, app_input *Input, app_offscreen_buffer *Buffer);
+app_update(AppMemory *Memory, AppInput *Input, AppOffscreenBuffer *Buffer);
+#endif
 
 #endif //PLATFROM_H

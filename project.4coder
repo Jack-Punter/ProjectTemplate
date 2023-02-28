@@ -43,9 +43,9 @@ commands = {
     
     .run = {
         .out = "*run*", .footer_panel = false, .save_dirty_files = false,
-        .win = ".\\build\\_prj_template.exe",
-        .linux = "./build/_prj_template.exe",
-        .mac = "./build/_prj_template.exe",
+        .win = ".\\build\\app_core.exe",
+        .linux = "./build/app_core.exe",
+        .mac = "./build/app_core.exe",
     },
     .debug = {
         .win = "remedybg _prj_template.rdbg",
@@ -57,4 +57,5 @@ fkey_command = {
     .F2 = "build_release",
     .F3 = "build_tracing",
     .F5 = "debug",
+    .F6 = "run",
 };

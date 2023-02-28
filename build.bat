@@ -10,7 +10,8 @@ set build_dir=%root%\build
 set src_dir=%root%\src
 set include_dir=%root%\include
 
-set CommonCompilerFlags=-MT -nologo -Gm- -Zi -FC -GR- -EHa -W3 -fp:fast -fp:except- -arch:AVX2 -diagnostics:caret -std:c++17
+set CommonCompilerFlags=-MT -nologo -Gm- -Zi -FC -GR- -EHa -W3 -fp:fast -fp:except- -arch:AVX2 -std:c11
+REM set CommonCompilerFlags=%CommonCompilerFlags% -diagnostics:caret
 set CommonCompilerFlags=%CommonCompilerFlags% -D_CRT_SECURE_NO_WARNINGS
 
 set DebugCompilerFlags=-Od
@@ -63,7 +64,7 @@ pushd %build_dir%
   cl %BuildFlags%  %src_dir%\app_main.cpp -I%include_dir% -Fmhandmade.map -LD /link -incremental:no -opt:ref -PDB:handmade_%random%.pdb -EXPORT:app_update
   del lock.tmp
 
-  cl %BuildFlags% %src_dir%\win32_platform.cpp -I%include_dir% /Feapp_main.exe /link -incremental:no %CommonLinkerFlags%
+  cl %BuildFlags% %src_dir%\win32_platform.cpp -I%include_dir% /Feapp_core.exe /link -incremental:no %CommonLinkerFlags%
 popd
 
 EXIT /B %ERRORLEVEL%
